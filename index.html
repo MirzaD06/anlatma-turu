@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anlatma Turu · Havacılık Yönetimi</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%23071422' width='32' height='32'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%238fd4f2'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #071422;
+      --navy: #062033;
+      --ink: #d7f3ff;
+      --paper: #10283f;
+      --paper-hot: #16344f;
+      --sky: #8fd4f2;
+      --sky-2: #d7f3ff;
+      --cream: #c5e9f8;
+      --muted: #7eb6d4;
+      --muted-ink: #8ec8e6;
+      --signal: #ff6b6b;
+      --go: #9fd4ee;
+      --line: rgba(168, 216, 240, 0.2);
+    }
+
+    * { box-sizing: border-box; }
+
+    [hidden] { display: none !important; }
+
+    html, body { margin: 0; min-height: 100%; }
+
+    body {
+      color-scheme: dark;
+      font-family: "Segoe UI Variable", "Segoe UI", sans-serif;
+      color: var(--cream);
+      background:
+        radial-gradient(1000px 480px at 50% -8%, rgba(143, 212, 242, 0.22), transparent 58%),
+        radial-gradient(820px 380px at 50% 118%, rgba(46, 120, 176, 0.32), transparent 52%),
+        var(--bg);
+    }
+
+    ::selection { background: var(--sky); color: var(--navy); }
+
+    button, textarea, input { font: inherit; }
+
+    button { cursor: pointer; }
+
+    button:focus-visible,
+    textarea:focus-visible,
+    input:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid var(--sky-2);
+      outline-offset: 3px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 18px 0 28px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .brand { display: flex; flex-direction: column; gap: 4px; }
+
+    h1 { color: var(--sky-2); }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--sky);
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Palatino Linotype", Palatino, Georgia, serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+    .ghost, .linkish {
+      background: transparent;
+      color: var(--cream);
+      border: 1px solid rgba(143, 212, 242, 0.35);
+      border-radius: 999px;
+      padding: 10px 16px;
+    }
+
+    .ghost:hover, .linkish:hover { border-color: var(--sky); color: var(--sky-2); }
+
+    .steps {
+      display: flex;
+      gap: 8px;
+      list-style: none;
+      padding: 0;
+      margin: 0 0 14px;
+    }
+
+    .steps li {
+      flex: 1;
+      text-align: center;
+      padding: 10px 8px;
+      border-radius: 999px;
+      background: rgba(143, 212, 242, 0.08);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .steps li[data-state="current"] {
+      background: var(--sky);
+      color: var(--navy);
+      font-weight: 700;
+    }
+
+    .steps li[data-state="done"] {
+      background: rgba(56, 140, 180, 0.55);
+      color: var(--sky-2);
+    }
+
+    .stage { min-height: calc(100svh - 320px); display: grid; align-items: center; }
+
+    .panel { display: none; width: min(760px, 100%); margin-inline: auto; }
+
+    body[data-phase="start"] .panel-start,
+    body[data-phase="spin"] .panel-board,
+    body[data-phase="choice"] .panel-board,
+    body[data-phase="research"] .panel-research,
+    body[data-phase="talk"] .panel-talk,
+    body[data-phase="done"] .panel-done { display: block; }
+
+    .panel-start { text-align: center; }
+
+    .lede {
+      max-width: 38rem;
+      margin: 8px auto 28px;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.5;
+    }
+
+    .hero, .go, .primary {
+      border: 0;
+      border-radius: 18px;
+      background: var(--sky);
+      color: var(--navy);
+      font-weight: 700;
+      box-shadow: 0 0 0 1px rgba(215, 243, 255, 0.45), 0 12px 40px rgba(143, 212, 242, 0.28);
+    }
+
+    .hero { font-size: clamp(1.35rem, 3vw, 1.7rem); padding: 22px 42px; }
+
+    .hero:hover, .go:hover, .primary:hover { filter: brightness(1.06); }
+
+    .hero:active, .go:active, .primary:active { transform: translateY(1px); }
+
+    .prova-note {
+      display: none;
+      margin-top: 18px;
+      color: var(--sky);
+    }
+
+    body[data-prova="1"] .prova-note { display: block; }
+
+    .pass {
+      position: relative;
+      background: var(--paper);
+      color: var(--ink);
+      border-radius: 22px;
+      padding: 22px 22px 18px;
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.28);
+    }
+
+    .pass.is-lit {
+      background: var(--paper-hot);
+      box-shadow: 0 0 0 2px rgba(143, 212, 242, 0.75), 0 18px 70px rgba(143, 212, 242, 0.22);
+      animation: ignite 0.7s ease-out;
+    }
+
+    @keyframes ignite {
+      0% { transform: scale(0.985); box-shadow: 0 0 0 0 rgba(143, 212, 242, 0); }
+      45% { transform: scale(1); box-shadow: 0 0 0 8px rgba(143, 212, 242, 0.22), 0 20px 80px rgba(143, 212, 242, 0.32); }
+      100% { box-shadow: 0 0 0 2px rgba(143, 212, 242, 0.75), 0 18px 70px rgba(143, 212, 242, 0.22); }
+    }
+
+    .pass-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      color: var(--muted-ink);
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .pass-top strong { margin-left: auto; color: var(--ink); letter-spacing: 0.08em; }
+
+    .pass.is-lit .pass-top strong { color: var(--sky-2); }
+
+    .lamp {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #1c4a66;
+      box-shadow: inset 0 0 0 2px #0d3048;
+      flex: none;
+    }
+
+    .pass.is-spinning .lamp { animation: flicker 0.18s steps(2) infinite; }
+
+    .pass.is-lit .lamp {
+      background: var(--sky-2);
+      box-shadow: 0 0 10px 3px var(--sky), 0 0 28px 8px rgba(143, 212, 242, 0.55);
+    }
+
+    @keyframes flicker {
+      0% { background: #3d7ea3; }
+      100% { background: #d7f3ff; }
+    }
+
+    .reel { min-height: 9.5rem; display: grid; align-content: center; text-align: center; }
+
+    .reel p, .reel h2 { margin: 0; text-wrap: balance; text-align: center; }
+
+    .reel p {
+      color: rgba(197, 233, 248, 0.42);
+      font-family: "Palatino Linotype", Palatino, Georgia, serif;
+      font-size: clamp(1.15rem, 2.4vw, 1.6rem);
+      font-weight: 700;
+      line-height: 1.2;
+      min-height: 1.2em;
+    }
+
+    .reel h2 {
+      font-family: "Palatino Linotype", Palatino, Georgia, serif;
+      font-size: clamp(2.4rem, 6.5vw, 4.4rem);
+      line-height: 1.08;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin: 8px 0;
+      color: var(--sky-2);
+    }
+
+    body[data-phase="choice"] .reel p { display: none; }
+
+    .pass.is-spinning .reel h2,
+    .pass.is-spinning .reel p { animation: slot 0.1s linear infinite; }
+
+    @keyframes slot {
+      from { transform: translateY(16%); opacity: 0.45; filter: blur(1.1px); }
+      to { transform: translateY(-16%); opacity: 1; filter: blur(0); }
+    }
+
+    .bar {
+      height: 4px;
+      margin-top: 16px;
+      border-radius: 999px;
+      background: rgba(143, 212, 242, 0.16);
+      overflow: hidden;
+    }
+
+    body[data-phase="choice"] .bar { display: none; }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--sky);
+    }
+
+    .choice-actions {
+      display: none;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    body[data-phase="choice"] .choice-actions { display: flex; }
+
+    .choice-actions .primary,
+    .choice-actions .ghost,
+    .go {
+      flex: 1;
+      min-height: 58px;
+      font-size: 1.05rem;
+      border-radius: 14px;
+    }
+
+    .choice-actions .ghost {
+      color: var(--sky-2);
+      border-color: rgba(143, 212, 242, 0.45);
+    }
+
+    .choice-actions .ghost:hover { color: white; border-color: var(--sky-2); }
+
+    .stack { text-align: center; }
+
+    .kicker {
+      margin: 0 0 8px;
+      color: var(--sky);
+      letter-spacing: 0.08em;
+      font-size: 0.95rem;
+    }
+
+    .compact { text-align: center; margin-bottom: 8px; }
+
+    .compact h2 {
+      margin: 0;
+      font-family: "Palatino Linotype", Palatino, Georgia, serif;
+      font-size: clamp(2.1rem, 5.5vw, 3.4rem);
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      text-align: center;
+      text-wrap: balance;
+      color: var(--sky-2);
+    }
+
+    .texty {
+      background: transparent;
+      border: 0;
+      color: var(--sky);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      padding: 0;
+      margin-bottom: 8px;
+    }
+
+    .clock {
+      width: min(210px, 52vw);
+      margin: 2px auto 10px;
+      display: grid;
+      place-items: center;
+    }
+
+    .clock svg, .digits { grid-area: 1 / 1; }
+
+    .clock svg { width: 100%; height: auto; }
+
+    .track { fill: none; stroke: rgba(143, 212, 242, 0.22); stroke-width: 8; }
+
+    .value {
+      fill: none;
+      stroke: var(--sky);
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-dasharray: 326.726;
+      stroke-dashoffset: 0;
+      transform: rotate(-90deg);
+      transform-origin: 60px 60px;
+    }
+
+    .digits {
+      font-family: Consolas, "Cascadia Mono", "Courier New", monospace;
+      font-size: clamp(2.6rem, 8vw, 3.8rem);
+      letter-spacing: -0.04em;
+      margin: 0;
+      color: var(--sky-2);
+    }
+
+    .clock.is-urgent .value { stroke: var(--signal); }
+    .clock.is-urgent .digits { color: #ffc1c1; }
+
+    .go { padding: 16px 28px; font-size: 1.15rem; }
+
+    .go[hidden], .hero[hidden] { display: none; }
+
+    .hint { color: var(--muted); min-height: 1.4em; }
+
+    .reset {
+      margin-top: 6px;
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .timeup {
+      display: inline-flex;
+      margin: 0 auto 16px;
+      background: var(--signal);
+      color: white;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 999px;
+      animation: nudge 0.45s ease-in-out 2;
+    }
+
+    @keyframes nudge {
+      20% { transform: translateX(-4px); }
+      40% { transform: translateX(4px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(2px); }
+    }
+
+    .celebrate-title {
+      margin: 0;
+      font-family: "Palatino Linotype", Palatino, Georgia, serif;
+      font-size: clamp(3.4rem, 10vw, 6.4rem);
+      line-height: 0.95;
+      color: var(--sky-2);
+      text-shadow: 0 0 40px rgba(143, 212, 242, 0.55);
+      animation: pop 0.55s cubic-bezier(0.2, 1.4, 0.4, 1);
+    }
+
+    @keyframes pop {
+      from { transform: scale(0.86); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .done-copy { font-size: 1.2rem; color: var(--muted); }
+
+    .panel-done .pass { margin: 18px 0 22px; }
+
+    #confetti {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .apron {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 92px;
+      pointer-events: none;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.45), transparent);
+    }
+
+    .lights {
+      position: absolute;
+      left: 7%;
+      right: 7%;
+      bottom: 28px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .lights i {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--sky);
+      opacity: 0.3;
+      animation: blink 1.8s ease-in-out infinite;
+    }
+
+    .lights i:nth-child(odd) { animation-delay: 0.45s; }
+    .lights i:nth-child(3n) { animation-delay: 0.9s; }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0.22; transform: scale(0.85); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+
+    dialog {
+      width: min(680px, calc(100vw - 24px));
+      max-height: min(86vh, 860px);
+      padding: 0;
+      border: 0;
+      border-radius: 22px;
+      background: #0d2238;
+      color: var(--cream);
+      color-scheme: dark;
+    }
+
+    dialog::backdrop { background: rgba(4, 12, 24, 0.72); }
+
+    .sheet { padding: 22px; overflow: auto; max-height: min(86vh, 860px); }
+
+    .sheet h2 {
+      font-family: "Palatino Linotype", Palatino, Georgia, serif;
+      margin: 0 0 8px;
+    }
+
+    .sheet p { line-height: 1.45; }
+
+    .sheet-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+
+    textarea, input[type="search"] {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(143, 212, 242, 0.28);
+      background: #071422;
+      color: var(--sky-2);
+      padding: 12px;
+    }
+
+    textarea { min-height: 96px; resize: vertical; }
+
+    .add-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin: 10px 0; }
+
+    .msg { min-height: 1.3em; color: var(--go); font-weight: 650; }
+
+    .topic-list, .default-list { list-style: none; padding: 0; margin: 0; }
+
+    .topic-list li, .default-list li {
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .topic-list button {
+      flex: none;
+      background: transparent;
+      border: 1px solid rgba(143, 212, 242, 0.35);
+      color: var(--sky-2);
+      border-radius: 999px;
+      padding: 6px 10px;
+    }
+
+    details { margin-top: 16px; }
+
+    summary { cursor: pointer; font-weight: 700; }
+
+    .stats { color: var(--muted-ink); }
+
+    @media (max-width: 640px) {
+      header { align-items: flex-start; flex-direction: column; }
+      .choice-actions { flex-direction: column; }
+      .steps { gap: 6px; }
+      .steps li { font-size: 0.8rem; padding: 8px 4px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body data-phase="start" data-step="pick">
+  <main>
+    <header>
+      <div class="brand">
+        <p class="eyebrow">Havacılık Yönetimi</p>
+        <h1>Anlatma Turu</h1>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="ghost" id="soundBtn" aria-pressed="true">Ses açık</button>
+        <button type="button" class="ghost" id="poolBtn">Konu havuzu</button>
+      </div>
+    </header>
+
+    <ol class="steps" aria-label="Tur adımları">
+      <li data-step="pick">Konu</li>
+      <li data-step="research">Araştırma</li>
+      <li data-step="talk">Anlatma</li>
+    </ol>
+
+    <div class="stage">
+      <section class="panel panel-start">
+        <p class="lede">Beş saniye kavram döner, biri yanar. Onaylarsan on dakika araştırır, sonra bir dakika anlatırsın. Kendi kavramını konu havuzundan ekleyebilirsin.</p>
+        <button type="button" class="hero" id="startBtn">Anlatmaya Başla!</button>
+        <p class="prova-note">Prova turu açık. Süreler kısa.</p>
+      </section>
+
+      <section class="panel panel-board">
+        <article class="pass" id="pass">
+          <div class="pass-top">
+            <span class="lamp" aria-hidden="true"></span>
+            <span>Kavram</span>
+            <strong id="passMeta">Dönüyor</strong>
+          </div>
+          <div class="reel" aria-live="off" id="reel">
+            <p id="linePrev"></p>
+            <h2 id="lineCurrent">Konular hazırlanıyor</h2>
+            <p id="lineNext"></p>
+          </div>
+          <div class="bar" aria-hidden="true"><span id="spinBar"></span></div>
+          <div class="choice-actions">
+            <button type="button" class="primary" id="approveBtn">Onaylıyorum</button>
+            <button type="button" class="ghost" id="rerollBtn">Yeniden konu seç</button>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel panel-research stack">
+        <p class="kicker" id="researchKicker">Araştırma · 10 dakika</p>
+        <article class="pass compact is-lit">
+          <div class="pass-top">
+            <span class="lamp" aria-hidden="true"></span>
+            <span>Konun</span>
+          </div>
+          <h2 id="researchTopic"></h2>
+        </article>
+        <button type="button" class="texty" id="copyResearch">Konuyu kopyala</button>
+        <div class="clock" id="researchClock">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="track" cx="60" cy="60" r="52"></circle>
+            <circle class="value" id="researchRing" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <p class="digits" id="researchDigits" role="timer">10:00</p>
+        </div>
+        <button type="button" class="go" id="startResearch">Araştırmaya başla</button>
+        <p class="hint" id="researchHint">Süre, araştırmaya başla dediğinde işler.</p>
+        <button type="button" class="reset" id="resetResearch">Turu başa al</button>
+      </section>
+
+      <section class="panel panel-talk stack">
+        <div class="timeup" role="alert">Süre doldu</div>
+        <p class="kicker" id="talkKicker">Anlatma · 1 dakika</p>
+        <article class="pass compact is-lit">
+          <div class="pass-top">
+            <span class="lamp" aria-hidden="true"></span>
+            <span>Anlatacağın konu</span>
+          </div>
+          <h2 id="talkTopic"></h2>
+        </article>
+        <button type="button" class="texty" id="copyTalk">Konuyu kopyala</button>
+        <div class="clock" id="talkClock">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="track" cx="60" cy="60" r="52"></circle>
+            <circle class="value" id="talkRing" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <p class="digits" id="talkDigits" role="timer">01:00</p>
+        </div>
+        <button type="button" class="go" id="startTalk">Anlatmaya başla</button>
+        <p class="hint" id="talkHint">Butona basınca bir dakikalık sayaç başlar.</p>
+        <button type="button" class="reset" id="resetTalk">Turu başa al</button>
+      </section>
+
+      <section class="panel panel-done stack">
+        <p class="kicker">Tur bitti</p>
+        <h2 class="celebrate-title">Tebrikler</h2>
+        <p class="done-copy">Anlatma süren doldu. Bu turu tamamladın.</p>
+        <article class="pass compact is-lit">
+          <div class="pass-top">
+            <span class="lamp" aria-hidden="true"></span>
+            <span>Anlattığın konu</span>
+          </div>
+          <h2 id="doneTopic"></h2>
+        </article>
+        <button type="button" class="hero" id="againBtn">Yeni tur</button>
+      </section>
+    </div>
+    <p id="live" class="sr-only" aria-live="polite"></p>
+  </main>
+
+  <canvas id="confetti" aria-hidden="true"></canvas>
+  <div class="apron" aria-hidden="true">
+    <div class="lights">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+  </div>
+
+  <dialog id="poolDialog" aria-labelledby="poolTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2 id="poolTitle">Konu havuzu</h2>
+        <button type="button" class="ghost" id="closePool">Kapat</button>
+      </div>
+      <p>Hazır kavramlar duruyor. Eklediklerin de çekilişe girer ve bu tarayıcıda saklanır. Her satıra bir kavram yaz.</p>
+      <label for="newTopic">Yeni kavram</label>
+      <textarea id="newTopic" spellcheck="true" placeholder="Kısa yaz. Örnek: FOD"></textarea>
+      <div class="add-row">
+        <button type="button" class="primary" id="addTopic" style="padding:12px 18px;border-radius:12px">Ekle</button>
+        <span class="stats" id="poolStats"></span>
+      </div>
+      <p class="msg" id="poolMsg" role="status"></p>
+      <h3>Senin konuların</h3>
+      <ul class="topic-list" id="customList"></ul>
+      <p id="customEmpty">Eklediğin konular burada durur.</p>
+      <details>
+        <summary>Hazır konular</summary>
+        <input id="topicSearch" type="search" placeholder="Hazır konularda ara" style="margin:12px 0">
+        <ul class="default-list" id="defaultList"></ul>
+        <p id="searchEmpty" hidden>Bu aramaya uyan hazır konu yok.</p>
+      </details>
+    </div>
+  </dialog>
+
+  <script>
+    "use strict";
+
+    const BASE_TITLE = "Anlatma Turu · Havacılık Yönetimi";
+    const TOPIC_KEY = "anlatma-turu-konular-v1";
+    const SOUND_KEY = "anlatma-turu-ses-v1";
+    const params = new URLSearchParams(location.search);
+    const PROVA = params.get("prova") === "1";
+    const SPIN_MS = PROVA ? 2000 : 5000;
+    const RESEARCH_MS = PROVA ? 8000 : 10 * 60 * 1000;
+    const TALK_MS = PROVA ? 6000 : 60 * 1000;
+
+    const TOPICS = [
+      "Slot",
+      "Grandfather rights",
+      "80/20 kuralı",
+      "Seviye 3 meydan",
+      "Hub-and-spoke",
+      "Noktadan noktaya",
+      "Hub bankası",
+      "MCT",
+      "Focus city",
+      "Bağlantılı yolcu",
+      "Yerel yolcu",
+      "Tam hizmet taşıyıcı",
+      "Düşük maliyetli taşıyıcı",
+      "Bölgesel taşıyıcı",
+      "Doluluk oranı",
+      "Yield",
+      "ASK",
+      "RPK",
+      "RASK",
+      "CASK",
+      "Başabaş doluluk",
+      "Spill",
+      "Overbooking",
+      "No-show",
+      "Denied boarding",
+      "Dinamik fiyat",
+      "Markalı ücret",
+      "Yan gelir",
+      "Kurumsal anlaşma",
+      "Grup rezervasyonu",
+      "Talep karışımı",
+      "Frekans",
+      "Sadakat programı",
+      "Kod paylaşımı",
+      "Interline",
+      "Havayolu ittifakı",
+      "GDS",
+      "NDC",
+      "BSP",
+      "Doğrudan satış",
+      "Acente kanalı",
+      "Açık semalar",
+      "Beşinci özgürlük",
+      "Kabotaj",
+      "İkili anlaşma",
+      "Chicago Sözleşmesi",
+      "ICAO",
+      "IATA",
+      "Montreal Sözleşmesi",
+      "SHY-Yolcu",
+      "Olağanüstü hal",
+      "AOC",
+      "SHGM",
+      "DHMİ",
+      "EASA",
+      "Sahiplik ve kontrol",
+      "Kamu hizmeti yükümlülüğü",
+      "İmtiyaz sözleşmesi",
+      "IOSA",
+      "SMS",
+      "Tehlike",
+      "Risk",
+      "Just culture",
+      "İsviçre peyniri",
+      "ALARP",
+      "Kirli düzine",
+      "CRM",
+      "Emniyet",
+      "Güvenlik",
+      "Emniyet kültürü",
+      "Gönüllü raporlama",
+      "Zorunlu bildirim",
+      "Kalite yönetimi",
+      "Uçuş görev süresi",
+      "Mürettebat çizelgesi",
+      "Dönüş süresi",
+      "Blok süre",
+      "Zamanında performans",
+      "Gecikme kodu",
+      "Düzensiz operasyon",
+      "Uçak rotasyonu",
+      "Ölü başlık",
+      "Yedek uçak",
+      "AOG",
+      "MEL",
+      "OCC",
+      "Dispeç",
+      "Wet lease",
+      "Dry lease",
+      "ACMI",
+      "Operasyonel kiralama",
+      "Satış-geri kiralama",
+      "Tek tip filo",
+      "Uçak kullanımı",
+      "Döngü sayısı",
+      "Hat bakım",
+      "Üs bakım",
+      "Ağır bakım",
+      "Uçuşa elverişlilik",
+      "Dar gövde",
+      "Geniş gövde",
+      "Turboprop",
+      "Uçak bölümleri",
+      "Flap ve slat",
+      "Basınçlı kabin",
+      "Kabin adımı",
+      "Ağırlık ve denge",
+      "Load sheet",
+      "Faydalı yük",
+      "Kalkış performansı",
+      "Yüksek rakım",
+      "Yan rüzgar",
+      "ETOPS",
+      "Yakıt planı",
+      "Yedek meydan",
+      "NOTAM",
+      "METAR",
+      "TAF",
+      "IFR",
+      "Uçuş evreleri",
+      "Kule",
+      "Yaklaşma kontrol",
+      "Saha kontrol",
+      "Pist",
+      "Taksi yolu",
+      "Apron",
+      "Pist kapasitesi",
+      "Wake türbülansı",
+      "ILS",
+      "RVR",
+      "Pushback",
+      "Buz önleme",
+      "Gürültü kotası",
+      "Gece kısıtı",
+      "Havacılık geliri",
+      "Havacılık dışı gelir",
+      "İniş ücreti",
+      "Park ücreti",
+      "Yolcu ücreti",
+      "Tek kasa",
+      "Çift kasa",
+      "Kontakt köprü",
+      "Uzak park",
+      "Yer hizmetleri",
+      "Yolcu kabul",
+      "Kapı kapanışı",
+      "Bagaj kaçırma",
+      "PIR",
+      "Transfer bagajı",
+      "Güvenlik kontrol",
+      "Kabin bagajı",
+      "Kolaylaştırma",
+      "Çoklu meydan",
+      "Charter",
+      "Kargo uçağı",
+      "Belly kargo",
+      "Konşimento",
+      "ULD",
+      "Tehlikeli madde",
+      "FOD",
+      "Yakıt hedging",
+      "Döviz riski",
+      "Sezonluk talep",
+      "CORSIA",
+      "SAF",
+      "Gövde sigortası",
+      "Mali mesuliyet",
+      "Acil durum planı",
+      "Kriz iletişimi",
+      "Özel yolcu",
+      "Filo planlama",
+      "Ağ planlama",
+      "Tarife planlama",
+      "Gelir yönetimi"
+    ];
+
+    const $ = (id) => document.getElementById(id);
+    const live = $("live");
+    const pass = $("pass");
+    const linePrev = $("linePrev");
+    const lineCurrent = $("lineCurrent");
+    const lineNext = $("lineNext");
+    const passMeta = $("passMeta");
+    const spinBar = $("spinBar");
+    const researchClock = {
+      wrap: $("researchClock"),
+      ring: $("researchRing"),
+      digits: $("researchDigits"),
+      total: RESEARCH_MS
+    };
+    const talkClock = {
+      wrap: $("talkClock"),
+      ring: $("talkRing"),
+      digits: $("talkDigits"),
+      total: TALK_MS
+    };
+
+    let phase = "start";
+    let currentTopic = "";
+    let lastTopic = "";
+    let spinToken = 0;
+    let running = false;
+    let cancelTick = () => {};
+    let soundOn = localStorage.getItem(SOUND_KEY) !== "0";
+    let audioCtx = null;
+    let flashTimer = 0;
+    let speakTimer = 0;
+    let confettiRaf = 0;
+    let activeDeadline = 0;
+    let activeFinish = () => {};
+
+    if (PROVA) document.body.dataset.prova = "1";
+    $("researchKicker").textContent = PROVA ? "Araştırma · prova" : "Araştırma · 10 dakika";
+    $("talkKicker").textContent = PROVA ? "Anlatma · prova" : "Anlatma · 1 dakika";
+    researchClock.digits.textContent = format(RESEARCH_MS);
+    talkClock.digits.textContent = format(TALK_MS);
+
+    function say(text) {
+      live.textContent = "";
+      live.textContent = text;
+    }
+
+    function loadCustom() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(TOPIC_KEY) || "[]");
+        if (!Array.isArray(raw)) return [];
+        return raw.filter((item) => typeof item === "string" && item.trim());
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function saveCustom(list) {
+      localStorage.setItem(TOPIC_KEY, JSON.stringify(list));
+    }
+
+    function topicKey(text) {
+      return text.toLocaleLowerCase("tr").replace(/\s+/g, " ").trim();
+    }
+
+    function pool() {
+      return TOPICS.concat(loadCustom());
+    }
+
+    function pickTopic(exclude) {
+      const items = pool();
+      const options = items.filter((item) => item !== exclude);
+      const bag = options.length ? options : items;
+      return bag[Math.floor(Math.random() * bag.length)];
+    }
+
+    function randomDifferent(from) {
+      const items = pool();
+      if (items.length < 2) return items[0] || "";
+      let text = items[Math.floor(Math.random() * items.length)];
+      let guard = 0;
+      while (text === from && guard < 8) {
+        text = items[Math.floor(Math.random() * items.length)];
+        guard += 1;
+      }
+      return text;
+    }
+
+    function format(ms) {
+      const sec = Math.max(0, Math.ceil(ms / 1000));
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+    }
+
+    function paintClock(clock, remaining) {
+      const c = 2 * Math.PI * 52;
+      const frac = clock.total === 0 ? 0 : Math.max(0, Math.min(1, remaining / clock.total));
+      clock.digits.textContent = format(remaining);
+      clock.ring.style.strokeDasharray = String(c);
+      clock.ring.style.strokeDashoffset = String(c * (1 - frac));
+      clock.wrap.classList.toggle("is-urgent", remaining <= 10000 && remaining > 0);
+    }
+
+    function paintSteps() {
+      const order = ["pick", "research", "talk"];
+      const step = phase === "start" || phase === "spin" || phase === "choice"
+        ? "pick"
+        : phase === "research"
+          ? "research"
+          : phase === "talk"
+            ? "talk"
+            : "done";
+      const idx = step === "done" ? 3 : order.indexOf(step);
+      document.querySelectorAll(".steps li").forEach((li, i) => {
+        const state = i < idx ? "done" : i === idx ? "current" : "wait";
+        li.dataset.state = state;
+        if (state === "current") li.setAttribute("aria-current", "step");
+        else li.removeAttribute("aria-current");
+      });
+    }
+
+    function render() {
+      document.body.dataset.phase = phase;
+      paintSteps();
+      pass.classList.toggle("is-spinning", phase === "spin");
+      pass.classList.toggle("is-lit", phase === "choice");
+      $("researchTopic").textContent = currentTopic;
+      $("talkTopic").textContent = currentTopic;
+      $("doneTopic").textContent = currentTopic;
+      $("startResearch").hidden = phase === "research" && running;
+      $("startTalk").hidden = phase === "talk" && running;
+      document.querySelector(".timeup").hidden = !(phase === "talk" && !running);
+      if (phase === "research" && !running) {
+        paintClock(researchClock, RESEARCH_MS);
+        $("researchHint").textContent = "Süre, araştırmaya başla dediğinde işler.";
+      }
+      if (phase === "talk" && !running) {
+        paintClock(talkClock, TALK_MS);
+        $("talkHint").textContent = "Butona basınca bir dakikalık sayaç başlar.";
+      }
+      document.querySelectorAll(".reset").forEach((button) => {
+        button.dataset.armed = "0";
+        button.textContent = "Turu başa al";
+      });
+      const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    }
+
+    function stopTitleFlash() {
+      clearInterval(flashTimer);
+      flashTimer = 0;
+      document.title = BASE_TITLE;
+    }
+
+    function flashTitle() {
+      stopTitleFlash();
+      let on = false;
+      flashTimer = setInterval(() => {
+        on = !on;
+        document.title = on ? "Süre doldu" : BASE_TITLE;
+      }, 800);
+    }
+
+    function audio() {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      if (!audioCtx) audioCtx = new Ctx();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      return audioCtx;
+    }
+
+    function tone(ctx, freq, start, dur, type, volume) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(volume, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + dur + 0.02);
+    }
+
+    function speak(text) {
+      if (!soundOn || !window.speechSynthesis) return;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "tr-TR";
+      utter.rate = 1;
+      const voice = speechSynthesis.getVoices().find((item) => item.lang && item.lang.toLowerCase().startsWith("tr"));
+      if (voice) utter.voice = voice;
+      speechSynthesis.cancel();
+      speechSynthesis.resume();
+      speechSynthesis.speak(utter);
+    }
+
+    function playTimeUp() {
+      if (!soundOn) return;
+      const ctx = audio();
+      if (ctx) {
+        const now = ctx.currentTime + 0.02;
+        tone(ctx, 620, now, 0.16, "sine", 0.09);
+        tone(ctx, 620, now + 0.22, 0.16, "sine", 0.09);
+        tone(ctx, 880, now + 0.44, 0.28, "sine", 0.1);
+      }
+      clearTimeout(speakTimer);
+      speakTimer = window.setTimeout(() => speak("Süre doldu"), 520);
+      if (navigator.vibrate) navigator.vibrate([180, 80, 180]);
+    }
+
+    function playCheer() {
+      if (!soundOn) return;
+      const ctx = audio();
+      if (!ctx) return;
+      const now = ctx.currentTime + 0.02;
+      [523, 659, 784, 1046].forEach((freq, i) => tone(ctx, freq, now + i * 0.11, 0.2, "sine", 0.07));
+    }
+
+    function stopCountdown() {
+      cancelTick();
+      cancelTick = () => {};
+      running = false;
+    }
+
+    function startCountdown(clock, onDone) {
+      const deadline = Date.now() + clock.total;
+      let raf = 0;
+      let timer = 0;
+      let settled = false;
+      function finish() {
+        if (settled) return;
+        settled = true;
+        activeDeadline = 0;
+        activeFinish = () => {};
+        cancelAnimationFrame(raf);
+        clearTimeout(timer);
+        paintClock(clock, 0);
+        document.title = BASE_TITLE;
+        onDone();
+      }
+      activeDeadline = deadline;
+      activeFinish = finish;
+      function frame() {
+        const left = deadline - Date.now();
+        if (left <= 0) {
+          finish();
+          return;
+        }
+        paintClock(clock, left);
+        const label = clock === researchClock ? "Araştırma" : "Anlatma";
+        if (!flashTimer) document.title = format(left) + " · " + label;
+        raf = requestAnimationFrame(frame);
+      }
+      timer = setTimeout(finish, clock.total + 40);
+      raf = requestAnimationFrame(frame);
+      return () => {
+        settled = true;
+        activeDeadline = 0;
+        activeFinish = () => {};
+        cancelAnimationFrame(raf);
+        clearTimeout(timer);
+      };
+    }
+
+    function beginSpin() {
+      stopCountdown();
+      stopTitleFlash();
+      stopConfetti();
+      phase = "spin";
+      running = false;
+      $("reel").setAttribute("aria-live", "off");
+      const token = ++spinToken;
+      const winner = pickTopic(lastTopic);
+      passMeta.textContent = "Dönüyor";
+      spinBar.style.width = "0%";
+      const first = randomDifferent("");
+      linePrev.textContent = randomDifferent(first);
+      lineCurrent.textContent = first;
+      lineNext.textContent = randomDifferent(first);
+      render();
+      say("Konular dönüyor.");
+      const started = Date.now();
+      let lastSwitch = 0;
+      let shown = first;
+      function frame(now) {
+        if (token !== spinToken || phase !== "spin") return;
+        const t = Date.now() - started;
+        spinBar.style.width = Math.min(100, (t / SPIN_MS) * 100) + "%";
+        const secLeft = Math.max(1, Math.ceil((SPIN_MS - t) / 1000));
+        passMeta.textContent = secLeft + " sn";
+        if (now - lastSwitch > 90) {
+          lastSwitch = now;
+          const next = randomDifferent(shown);
+          linePrev.textContent = lineCurrent.textContent;
+          lineCurrent.textContent = lineNext.textContent || next;
+          lineNext.textContent = next;
+          shown = next;
+        }
+        if (t >= SPIN_MS) {
+          currentTopic = winner;
+          lastTopic = winner;
+          linePrev.textContent = "";
+          lineNext.textContent = "";
+          lineCurrent.textContent = winner;
+          passMeta.textContent = "Yandı";
+          phase = "choice";
+          render();
+          $("reel").setAttribute("aria-live", "polite");
+          say("Konu seçildi. " + winner);
+          if (!$("poolDialog").open) $("approveBtn").focus({ preventScroll: true });
+          return;
+        }
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function approve() {
+      if (phase !== "choice" || !currentTopic) return;
+      phase = "research";
+      running = false;
+      render();
+      say("Konu onaylandı. Araştırma süresi hazır.");
+      $("startResearch").focus({ preventScroll: true });
+    }
+
+    function beginResearch() {
+      if (phase !== "research" || running) return;
+      audio();
+      running = true;
+      render();
+      $("researchHint").textContent = "Araştır. Süre bitince sesli uyarı gelecek.";
+      say("Araştırma süresi başladı.");
+      cancelTick = startCountdown(researchClock, () => {
+        running = false;
+        phase = "talk";
+        render();
+        playTimeUp();
+        flashTitle();
+        say("Süre doldu. Anlatma turu hazır.");
+      });
+    }
+
+    function beginTalk() {
+      if (phase !== "talk" || running) return;
+      audio();
+      stopTitleFlash();
+      if (window.speechSynthesis) speechSynthesis.cancel();
+      running = true;
+      render();
+      $("talkHint").textContent = "Anlat. Süre bitince tur kapanır.";
+      say("Anlatma süresi başladı.");
+      cancelTick = startCountdown(talkClock, () => {
+        running = false;
+        phase = "done";
+        render();
+        playCheer();
+        burst();
+        say("Tebrikler. Tur tamamlandı.");
+      });
+    }
+
+    function hardReset() {
+      spinToken += 1;
+      stopCountdown();
+      stopTitleFlash();
+      stopConfetti();
+      clearTimeout(speakTimer);
+      if (window.speechSynthesis) speechSynthesis.cancel();
+      phase = "start";
+      running = false;
+      render();
+      say("Tur başa alındı.");
+      $("startBtn").focus({ preventScroll: true });
+    }
+
+    function bindReset(button) {
+      button.addEventListener("click", () => {
+        if (button.dataset.armed === "1") {
+          hardReset();
+          return;
+        }
+        button.dataset.armed = "1";
+        button.textContent = "Emin misin? Başa al";
+        window.setTimeout(() => {
+          if (button.dataset.armed === "1") {
+            button.dataset.armed = "0";
+            button.textContent = "Turu başa al";
+          }
+        }, 2800);
+      });
+    }
+
+    async function copyCurrent(button) {
+      if (!currentTopic) return;
+      try {
+        await navigator.clipboard.writeText(currentTopic);
+        const prev = button.textContent;
+        button.textContent = "Kopyalandı";
+        window.setTimeout(() => { button.textContent = prev; }, 1400);
+      } catch (err) {
+        button.textContent = "Kopyalanamadı";
+      }
+    }
+
+    function resizeCanvas() {
+      const canvas = $("confetti");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function stopConfetti() {
+      cancelAnimationFrame(confettiRaf);
+      const canvas = $("confetti");
+      const ctx = canvas.getContext("2d");
+      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function burst() {
+      resizeCanvas();
+      const canvas = $("confetti");
+      const ctx = canvas.getContext("2d");
+      const colors = ["#8fd4f2", "#d7f3ff", "#5eb6de", "#ffffff", "#1f6f9a", "#b7e7f8"];
+      const pieces = Array.from({ length: 140 }, () => ({
+        x: Math.random() * canvas.width,
+        y: -20 - Math.random() * canvas.height * 0.5,
+        w: 6 + Math.random() * 7,
+        h: 8 + Math.random() * 10,
+        vy: 2.2 + Math.random() * 3.4,
+        vx: -1.6 + Math.random() * 3.2,
+        rot: Math.random() * Math.PI,
+        vr: -0.18 + Math.random() * 0.36,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      }));
+      cancelAnimationFrame(confettiRaf);
+      function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+        pieces.forEach((piece) => {
+          piece.y += piece.vy;
+          piece.x += piece.vx;
+          piece.rot += piece.vr;
+          piece.vy += 0.035;
+          if (piece.y < canvas.height + 24) alive = true;
+          ctx.save();
+          ctx.translate(piece.x, piece.y);
+          ctx.rotate(piece.rot);
+          ctx.fillStyle = piece.color;
+          ctx.fillRect(-piece.w / 2, -piece.h / 2, piece.w, piece.h);
+          ctx.restore();
+        });
+        if (alive && document.body.dataset.phase === "done") confettiRaf = requestAnimationFrame(loop);
+      }
+      loop();
+    }
+
+    function refreshPool(message) {
+      const custom = loadCustom();
+      const list = $("customList");
+      list.replaceChildren();
+      custom.forEach((topic, index) => {
+        const li = document.createElement("li");
+        li.dataset.text = topic;
+        const span = document.createElement("span");
+        span.textContent = topic;
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.textContent = "Sil";
+        remove.addEventListener("click", () => {
+          const next = loadCustom();
+          next.splice(index, 1);
+          saveCustom(next);
+          refreshPool("Konu silindi.");
+        });
+        li.append(span, remove);
+        list.append(li);
+      });
+      $("customEmpty").hidden = custom.length > 0;
+      const n = custom.length;
+      $("poolStats").textContent = n === 0
+        ? TOPICS.length + " hazır konu"
+        : TOPICS.length + " hazır konu · " + n + " eklediğin konu";
+      if (typeof message === "string") $("poolMsg").textContent = message;
+      applySearch();
+    }
+
+    function existsTopic(text) {
+      const key = topicKey(text);
+      return pool().some((item) => topicKey(item) === key);
+    }
+
+    function addTopics() {
+      const lines = $("newTopic").value.split(/\n+/).map((line) => line.replace(/\s+/g, " ").trim()).filter(Boolean);
+      if (!lines.length) {
+        $("poolMsg").textContent = "Önce bir kavram yaz.";
+        return;
+      }
+      if (lines.length === 1) {
+        const topic = lines[0];
+        if (topic.length < 2) {
+          $("poolMsg").textContent = "En az iki karakter yaz.";
+          return;
+        }
+        if (topic.length > 40) {
+          $("poolMsg").textContent = "Kavram kısa kalsın. Birkaç kelime yeter.";
+          return;
+        }
+        if (existsTopic(topic)) {
+          $("poolMsg").textContent = "Bu konu zaten havuzda.";
+          return;
+        }
+        const next = loadCustom();
+        next.push(topic);
+        saveCustom(next);
+        $("newTopic").value = "";
+        refreshPool("Konu eklendi. Bundan sonraki çekilişlerde çıkabilir.");
+        return;
+      }
+      const next = loadCustom();
+      let added = 0;
+      let skipped = 0;
+      lines.forEach((topic) => {
+        if (topic.length < 2 || topic.length > 40 || existsTopic(topic) || next.some((item) => topicKey(item) === topicKey(topic))) {
+          skipped += 1;
+          return;
+        }
+        next.push(topic);
+        added += 1;
+      });
+      saveCustom(next);
+      $("newTopic").value = "";
+      const note = added
+        ? added + " konu eklendi" + (skipped ? ", " + skipped + " tanesi eklenmedi." : ".")
+        : "Eklenen olmadı. Çok kısa, çok uzun ya da zaten havuzda.";
+      refreshPool(note);
+    }
+
+    function applySearch() {
+      const query = $("topicSearch").value.trim().toLocaleLowerCase("tr");
+      let visible = 0;
+      document.querySelectorAll("#defaultList li").forEach((li) => {
+        const match = !query || li.dataset.text.toLocaleLowerCase("tr").includes(query);
+        li.hidden = !match;
+        if (match) visible += 1;
+      });
+      $("searchEmpty").hidden = visible !== 0;
+    }
+
+    function paintSound() {
+      $("soundBtn").textContent = soundOn ? "Ses açık" : "Ses kapalı";
+      $("soundBtn").setAttribute("aria-pressed", soundOn ? "true" : "false");
+    }
+
+    function fillDefaults() {
+      const list = $("defaultList");
+      TOPICS.forEach((topic) => {
+        const li = document.createElement("li");
+        li.dataset.text = topic;
+        li.textContent = topic;
+        list.append(li);
+      });
+    }
+
+    $("startBtn").addEventListener("click", () => {
+      audio();
+      beginSpin();
+    });
+    $("rerollBtn").addEventListener("click", () => {
+      if (phase !== "choice") return;
+      $("reel").setAttribute("aria-live", "off");
+      beginSpin();
+    });
+    $("approveBtn").addEventListener("click", approve);
+    $("startResearch").addEventListener("click", beginResearch);
+    $("startTalk").addEventListener("click", beginTalk);
+    $("againBtn").addEventListener("click", hardReset);
+    bindReset($("resetResearch"));
+    bindReset($("resetTalk"));
+    $("copyResearch").addEventListener("click", () => copyCurrent($("copyResearch")));
+    $("copyTalk").addEventListener("click", () => copyCurrent($("copyTalk")));
+    $("soundBtn").addEventListener("click", () => {
+      soundOn = !soundOn;
+      localStorage.setItem(SOUND_KEY, soundOn ? "1" : "0");
+      paintSound();
+      if (soundOn) audio();
+      else if (window.speechSynthesis) speechSynthesis.cancel();
+    });
+    $("poolBtn").addEventListener("click", () => {
+      refreshPool("");
+      $("poolDialog").showModal();
+      $("newTopic").focus();
+    });
+    $("closePool").addEventListener("click", () => $("poolDialog").close());
+    $("poolDialog").addEventListener("click", (event) => {
+      if (event.target === $("poolDialog")) $("poolDialog").close();
+    });
+    $("addTopic").addEventListener("click", addTopics);
+    $("topicSearch").addEventListener("input", applySearch);
+    window.addEventListener("resize", () => {
+      if (document.body.dataset.phase === "done") resizeCanvas();
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && activeDeadline && Date.now() >= activeDeadline) {
+        activeFinish();
+      }
+    });
+    if (window.speechSynthesis) {
+      speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+      speechSynthesis.getVoices();
+    }
+
+    fillDefaults();
+    paintSound();
+    render();
+    $("startBtn").focus({ preventScroll: true });
+  </script>
+</body>
+</html>
